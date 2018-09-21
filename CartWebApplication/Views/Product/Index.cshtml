@@ -1,0 +1,51 @@
+﻿@model IEnumerable<Models.ViewModels.ProductViewModel>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h2>Products</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    <form action="/Cart/AddToCart" method="post">
+                        <input type="hidden" data-val="true" data-val-required="The product id field is required." id="ProductId" name="ProductId" value="@item.Id" />
+                        <div class="form-horizontal col-md-2">
+                            <input id="Amount" name="Amount" data-val="true" class="form-control" data-val-number="The field amount must be a number." data-val-required="The amount field is required." value="1" />
+
+                        </div>
+                        <input type="submit" value="AddToCart" class="btn btn-default" />
+                    </form>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

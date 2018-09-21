@@ -1,0 +1,72 @@
+﻿@model CartViewModel
+
+@{
+    ViewData["Title"] = "My Cart";
+}
+
+
+<h2>Products</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Product
+            </th>
+            <th>
+                Amount
+            </th>
+            <th>
+                Price
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.CartLines)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Product.Name)
+                </td>
+                <td>
+                    @using (Html.BeginForm("UpdateCartLine", "Cart"))
+                    {
+                        @Html.Hidden("LineId", item.Id, new { Name = "LineId", @id = "LineId" })
+                        <div class="form-horizontal col-md-6">
+                            <div class="form-group">
+                                @Html.EditorFor(modelItem => item.Amount, "number", "Amount", new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(modelItem => item.Amount, null, new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <input type="submit" value="Update" class="btn btn-default" />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalPrice)
+                </td>
+                <td>
+                    @Html.ActionLink("Delete", "Delete", new { lineId = item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+
+
+</table>
+<hr />
+<div>
+    @using (Html.BeginForm("AddToCart", "Cart"))
+    {
+        <div class="form-horizontal ">
+            <div class="form-group col-md-6">
+                @Html.DropDownList("ProductId", new SelectList(Model.AllProducts, "Id", "Name"), "Select product", new { @class = "form-control" })
+            </div>
+            <div class="form-group col-md-2">
+                @Html.Editor("AmountForNewCartLine", "number", "Amount", new { htmlAttributes = new { @class = "form-control", @type = "number", @required = "required" } })
+                @Html.ValidationMessage("AmountForNewCartLine", "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        <input type="submit" value="Add" class="btn btn-default" />
+    }
+</div>

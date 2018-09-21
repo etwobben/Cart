@@ -2,21 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CartWebApi.Extensions;
-using CartWebApi.FilterAttributes;
-using CartWebApi.Middleware;
+using CartWebApplication.ApplicationSettings;
+using CartWebApplication.Clients;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
-namespace CartWebApi
+namespace CartWebApplication
 {
     public class Startup
     {
@@ -30,28 +26,12 @@ namespace CartWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddFilterAttributes()
-                .AddDbContext()
-                .AddRepositories()
-                .AddServices()
-                .AddAutoMapperProfiles();
+            services.Configure<ApiSettingsModel>(Configuration.GetSection("ApiSettings"));
 
-            services
-                .AddCors(o => o.AddPolicy("MyPolicy", builder =>
-                {
-                    builder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                }));
+            services.AddScoped<ProductApiClient>();
+            services.AddScoped<CartLineApiClient>();
 
-            services.AddMvcCore()
-                .AddJsonFormatters();
-
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
-
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,13 +43,19 @@ namespace CartWebApi
             }
             else
             {
+                app.UseExceptionHandler("/Product/Error");
                 app.UseHsts();
             }
 
-            app.UseCors("MyPolicy")
-                .UseHttpsRedirection()
-                .UseMiddleware(typeof(ErrorHandlingMiddleware))
-                .UseMvc();
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Product}/{action=Index}");
+            });
         }
     }
 }
