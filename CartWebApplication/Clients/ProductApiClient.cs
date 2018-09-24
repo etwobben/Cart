@@ -8,7 +8,7 @@ using Models.ViewModels;
 
 namespace CartWebApplication.Clients
 {
-    public class ProductApiClient : BaseApiClient
+    public class ProductApiClient : BaseApiClient<ProductViewModel>
     {
 
         public ProductApiClient(IOptions<ApiSettingsModel> settings) : base(settings, "product")
@@ -19,7 +19,7 @@ namespace CartWebApplication.Clients
         public async Task<List<ProductViewModel>> GetProducts()
         {
             var requestUrl = CreateRequestUri();
-            return await GetAsync<List<ProductViewModel>>(requestUrl);
+            return await GetAsync(requestUrl);
         }
     }
 }

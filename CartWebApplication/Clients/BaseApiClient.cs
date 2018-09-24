@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace CartWebApplication.Clients
 {
-    public abstract class BaseApiClient
+    public abstract class BaseApiClient<T>
     {
         private readonly HttpClient _httpClient;
         private readonly string _resourcePath;
@@ -21,28 +22,28 @@ namespace CartWebApplication.Clients
             _resourcePath = resourcePath;
         }
 
-        protected async Task<T> GetAsync<T>(Uri requestUrl)
+        protected async Task<List<T>> GetAsync(Uri requestUrl)
         {
             var response = await _httpClient.GetAsync(requestUrl);
+            response.EnsureSuccessStatusCode();
+            var data = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<T>>(data);
+        }
+
+        protected async Task<T> PostAsync<TR>(Uri requestUrl, TR content)
+        {
+            var response = await _httpClient.PostAsync(requestUrl.ToString(), CreateHttpContent(content));
             response.EnsureSuccessStatusCode();
             var data = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(data);
         }
 
-        protected async Task<TR> PostAsync<T, TR>(Uri requestUrl, T content)
+        protected async Task<T> PutAsync<TR>(Uri requestUrl, TR content)
         {
-            var response = await _httpClient.PostAsync(requestUrl.ToString(), CreateHttpContent<T>(content));
+            var response = await _httpClient.PutAsync(requestUrl.ToString(), CreateHttpContent(content));
             response.EnsureSuccessStatusCode();
             var data = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<TR>(data);
-        }
-
-        protected async Task<TR> PutAsync<T, TR>(Uri requestUrl, T content)
-        {
-            var response = await _httpClient.PutAsync(requestUrl.ToString(), CreateHttpContent<T>(content));
-            response.EnsureSuccessStatusCode();
-            var data = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<TR>(data);
+            return JsonConvert.DeserializeObject<T>(data);
         }
 
 
@@ -53,7 +54,7 @@ namespace CartWebApplication.Clients
             await response.Content.ReadAsStringAsync();
         }
 
-        private HttpContent CreateHttpContent<T>(T content)
+        private HttpContent CreateHttpContent<TR>(TR content)
         {
             return new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
         }

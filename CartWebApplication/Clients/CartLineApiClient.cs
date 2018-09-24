@@ -9,7 +9,7 @@ using Models.ViewModels;
 
 namespace CartWebApplication.Clients
 {
-    public class CartLineApiClient : BaseApiClient
+    public class CartLineApiClient : BaseApiClient<CartLineViewModel>
     {
 
         public CartLineApiClient(IOptions<ApiSettingsModel> settings) : base(settings, "cart")
@@ -20,19 +20,19 @@ namespace CartWebApplication.Clients
         public async Task<List<CartLineViewModel>> GetCartLines()
         {
             var requestUrl = CreateRequestUri();
-            return await GetAsync<List<CartLineViewModel>>(requestUrl);
+            return await GetAsync(requestUrl);
         }
 
         public async Task<CartLineViewModel> AddCartLine(AddCartLineDTO addCartLineDto)
         {
             var requestUrl = CreateRequestUri();
-            return await PostAsync<AddCartLineDTO, CartLineViewModel>(requestUrl, addCartLineDto);
+            return await PostAsync<AddCartLineDTO>(requestUrl, addCartLineDto);
         }
 
         public async Task<CartLineViewModel> UpdateCartLine(UpdateCartLineDTO updateCartLineDto)
         {
             var requestUrl = CreateItemRequestUri(updateCartLineDto.LineId);
-            return await PutAsync<UpdateCartLineDTO, CartLineViewModel>(requestUrl, updateCartLineDto);
+            return await PutAsync<UpdateCartLineDTO>(requestUrl, updateCartLineDto);
         }
 
         public async Task DeleteCartLine(int lineId)

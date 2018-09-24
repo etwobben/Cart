@@ -43,7 +43,6 @@ namespace CartWebApplication.Controllers
             return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpDelete]
         public async Task<IActionResult> Delete(int lineId)
         {
             await _cartLineApiClient.DeleteCartLine(lineId);
