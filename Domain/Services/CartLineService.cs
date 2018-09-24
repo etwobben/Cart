@@ -9,11 +9,11 @@ namespace Domain.Services
 {
     public class CartLineService : BaseService<CartLine>, ICartLineService
     {
-        private readonly IRepository<Product> _productRepository;
+        private readonly IProductService _productService;
 
-        public CartLineService(IRepository<CartLine> cartlineRepository, IRepository<Product> productRepository) : base(cartlineRepository)
+        public CartLineService(IRepository<CartLine> cartlineRepository, IProductService productService) : base(cartlineRepository)
         {
-            _productRepository = productRepository;
+            _productService = productService;
         }
 
         public async Task<CartLine> UpdateCartLine(int lineId, int amount)
@@ -37,7 +37,7 @@ namespace Domain.Services
             if (amount <= 0)
                 throw new ArgumentException("Amount should be higher than 0");
 
-            var product = await _productRepository.GetByIdAsync(productId);
+            var product = await _productService.GetByIdAsync(productId);
             if (product == null)
                 throw new EntityNotFoundException(typeof(Product), productId);
 

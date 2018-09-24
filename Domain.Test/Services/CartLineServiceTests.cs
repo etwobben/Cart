@@ -6,29 +6,27 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.Services;
-using Domain.Test.Fixtures;
 using NSubstitute;
 using Xunit;
 
 namespace Domain.Test.Services
 {
-    [Collection("ProductRepository")]
     public class CartLineServiceTests : IClassFixture<CartLineServiceTests>
     {
-        private readonly ProductRepositoryFixture _productRepositoryFixture;
+        private readonly IProductService _productService;
         private readonly IRepository<CartLine> _cartLineRepository;
 
 
-        public CartLineServiceTests(ProductRepositoryFixture productRepositoryFixture)
+        public CartLineServiceTests()
         {
-            _productRepositoryFixture = productRepositoryFixture;
+            _productService = Substitute.For<IProductService>();
             _cartLineRepository = Substitute.For<IRepository<CartLine>>();
 
         }
 
         private ICartLineService GetService()
         {
-            return new CartLineService(_cartLineRepository, _productRepositoryFixture.GetRepository());
+            return new CartLineService(_cartLineRepository, _productService);
         }
 
         [Fact]
@@ -85,7 +83,14 @@ namespace Domain.Test.Services
         {
             //Arrange
             var service = GetService();
-            var cartline = new CartLine() { Id = 1, ProductId = _productRepositoryFixture.GetTestProduct().Id, Amount = 5 };
+            _productService.GetByIdAsync(9).Returns(Task.FromResult(new Product()
+            {
+                Id = 9,
+                Name = "test",
+                Description = "test description",
+                Price = 10
+            }));
+            var cartline = new CartLine() { Id = 1, ProductId = 9, Amount = 5 };
             _cartLineRepository.Where(Arg.Any<Expression<Func<CartLine, bool>>>()).Returns(Task.FromResult<List<CartLine>>(new List<CartLine>() { cartline }));
 
             //Act
